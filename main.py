@@ -15,7 +15,7 @@ CORS(app)  # Enable CORS for all routes
 # Load Vertex AI credentials
 credentials_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 if not credentials_path:
-    credentials_path = r'C:\Users\takle\Downloads\smart-emission-09aee1175355.json'  # Replace with your actual path
+    credentials_path = r'smart-emission-09aee1175355.json'  # Replace with your actual path
 
 try:
     credentials = service_account.Credentials.from_service_account_file(credentials_path)
