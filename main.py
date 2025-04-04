@@ -23,10 +23,10 @@ if credentials_json:
         gemini_model = GenerativeModel("gemini-pro")
     except Exception as e:
         print(f"Error initializing Vertex AI: {e}")
-        gemini_model = None
+        gemini_model =GenerativeModel("gemini-pro")
 else:
     print("GOOGLE_CREDENTIALS_JSON environment variable not set.")
-    gemini_model = None
+    gemini_model =GenerativeModel("gemini-pro")
 
 def get_air_quality_by_city(city):
     """
