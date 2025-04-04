@@ -136,15 +136,9 @@ def gemini_insights():
     except Exception as e:
         return jsonify({"error": f"Error generating insights: {str(e)}"}), 500
 
-# Serve React app
 @app.route('/')
-def serve():
-    return app.send_static_file('index.html')
-
-# Catch-all route to return the React app for any undefined routes
-@app.route('/<path:path>')
-def catch_all(path):
-    return app.send_static_file('index.html')
+def index():
+    return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
 
 if __name__ == '__main__':
     app.run(debug=True)
