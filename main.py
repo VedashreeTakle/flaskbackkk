@@ -11,13 +11,6 @@ from flask_cors import CORS
 app = Flask(__name__, static_folder='./frontend/build', static_url_path='/')
 CORS(app)  # Enable CORS for all routes
 
-# Load Vertex AI credentials
-try:
-    vertexai.init(project="smart-emission", location="us-central1")
-    gemini_model = GenerativeModel("gemini-pro")
-except Exception as e:
-    print(f"Error initializing Vertex AI: {e}")
-    gemini_model = GenerativeModel("gemini-pro")
 
 def get_air_quality_by_city(city):
     """
@@ -42,7 +35,6 @@ def get_air_quality_by_city(city):
         res = conn.getresponse()
         data = res.read().decode("utf-8")
         
-        # Parse the JSON response
         raw_data = json.loads(data)
         
         # Check if stations exist in the response
@@ -50,7 +42,6 @@ def get_air_quality_by_city(city):
             # Take the first station's data
             station = raw_data['stations'][0]
             
-            # Create a dictionary with the specific fields
             specific_data = {
                 "AQI": station.get('AQI', 'N/A'),
                 "CO": station.get('CO', 'N/A'),
@@ -75,28 +66,6 @@ def get_air_quality_by_city(city):
     except Exception as e:
         return {"error": str(e)}
 
-def format_gemini_output(text):
-    """Formats the Gemini output into structured HTML."""
-    # Split the response into sections based on headings
-    sections = re.split(r'##\s*(.*?)\s*\n', text)
-    formatted_html = ""
-
-    for i in range(1, len(sections), 2):
-        if i + 1 < len(sections):  # Check to ensure we don't access beyond array bounds
-            heading = sections[i]
-            content = sections[i + 1].strip()
-
-            # Format lists
-            content = re.sub(r'\*\s(.*?)\n', r'<li>\1</li>', content)
-            if '<li>' in content:
-                content = f'<ul>{content}</ul>'
-
-            # Format paragraphs
-            content = re.sub(r'([^*<\n]+)\n', r'<p>\1</p>', content)
-
-            formatted_html += f"<h2>{heading}</h2>{content}"
-
-    return formatted_html
 
 @app.route('/api/air-quality', methods=['POST'])
 def air_quality():
@@ -113,30 +82,11 @@ def air_quality():
     
     return jsonify({"air_quality_data": air_quality_data})
 
-@app.route('/api/gemini-insights', methods=['POST'])
-def gemini_insights():
-    data = request.json
-    city = data.get('city', '').strip()
-    
-    if not city:
-        return jsonify({"error": "City name is required"}), 400
-    
-    try:
-        # Generate decarbonization insights using Gemini
-        prompt = f"Give me decarbonization insights for {city}"
-        gemini_response = gemini_model.generate_content(prompt)
-        formatted_insights = format_gemini_output(gemini_response.text)
-        
-        return jsonify({"gemini_insights": formatted_insights})
-    except Exception as e:
-        return jsonify({"error": f"Error generating insights: {str(e)}"}), 500
 
 # Serve React app
 @app.route('/')
 def serve():
     return {"welcome":"hello"}
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
