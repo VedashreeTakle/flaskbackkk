@@ -2,8 +2,6 @@ from flask import Flask, request, jsonify, render_template
 import http.client
 import json
 import urllib.parse
-import vertexai
-from vertexai.generative_models import GenerativeModel
 import os
 import re
 from flask_cors import CORS
